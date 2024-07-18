@@ -5,19 +5,19 @@ using UnityEngine;
 public class WindZone : MonoBehaviour
 {
     [SerializeField]
-    private float windForce = 10.0f;  // Default wind force
+    private float windForce = 10.0f;  // default wind force
 
     private void OnTriggerStay(Collider other)
     {
-        // Get the GameObject that entered the trigger
+        // get the GameObject that entered the trigger
         var hitObj = other.gameObject;
 
-        // Check if the GameObject has a Rigidbody component
+        // retreiving rigidbody
         var rb = hitObj.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            // Apply force in the Z-axis direction
-            Vector3 forceDirection = transform.forward;
+            // applying force on negative z-axis direction
+            Vector3 forceDirection = -transform.forward;
             rb.AddForce(forceDirection * windForce);
         }
     }
