@@ -1,15 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
     public GameObject[] hurlingPrefabs;
-    //private int intervalOfX = 10;
-    //private int spawnPosY = 10;
     private float startDelay = 2.0f;
     private float spawnInterval = 1.5f;
-    public Transform[] spawnPoints; 
+    public Transform[] spawnPoints;
+    public BalanceMechanic balanceMechanic;
 
     private void Start()
     {
@@ -17,19 +14,18 @@ public class SpawnManager : MonoBehaviour
         {
             Debug.Log("No spawn points assigned");
         }
-
         InvokeRepeating("SpawningObjects", startDelay, spawnInterval);
     }
 
     private void SpawningObjects()
     {
         int indexCount = Random.Range(0, hurlingPrefabs.Length);
+        Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
+        GameObject spawnedObject = Instantiate(hurlingPrefabs[indexCount], sp.position, sp.rotation);
 
-        //int randomX = Random.Range(-intervalOfX, intervalOfX);
-
-        //Vector3 posPrefabs = new Vector3(randomX, spawnPosY, 0);
-
-        Transform _sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
-        Instantiate(hurlingPrefabs[indexCount], _sp.position, _sp.rotation);
+        // Add FallingObject component to the spawned object
+        FallingObject fallingObject = spawnedObject.AddComponent<FallingObject>();
+        fallingObject.balanceMechanic = balanceMechanic;
+        fallingObject.isRightSide = (sp.position.x > 0); // Determine which side based on spawn position
     }
 }
