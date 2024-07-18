@@ -23,9 +23,8 @@ public class SpawnManager : MonoBehaviour
         Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
         GameObject spawnedObject = Instantiate(hurlingPrefabs[indexCount], sp.position, sp.rotation);
 
-        // Add FallingObject component to the spawned object
         FallingObject fallingObject = spawnedObject.AddComponent<FallingObject>();
         fallingObject.balanceMechanic = balanceMechanic;
-        fallingObject.isRightSide = (sp.position.x > 0); // Determine which side based on spawn position
+        fallingObject.isRightSide = (sp.position.x > 0);
     }
 }

@@ -10,13 +10,11 @@ public class FallingObject : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            // Add weight to the balance when it hits the player
             balanceMechanic.AddWeight(weight, isRightSide);
-            Destroy(gameObject); // Destroy the object after it's caught
+            Destroy(gameObject);
         }
         else if (collision.gameObject.CompareTag("Ground"))
         {
-            // Destroy the object if it hits the ground
             Destroy(gameObject);
         }
     }
