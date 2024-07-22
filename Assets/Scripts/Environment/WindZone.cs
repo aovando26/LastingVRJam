@@ -5,7 +5,7 @@ using UnityEngine;
 public class WindZone : MonoBehaviour
 {
     [SerializeField]
-    private float initialWindForce = 10.0f;  // initial wind force
+    private float initialWindForce = 20.0f;  // initial wind force
     private float windForce;  // current wind force
 
     private void Start()
