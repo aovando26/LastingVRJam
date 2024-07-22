@@ -1,0 +1,37 @@
+using UnityEngine;
+
+public class Enemy : MonoBehaviour
+{
+    public BalanceMechanic balanceMechanic;
+    public bool isRightSide;
+    public float weight = 1f;
+    private SpawnManager spawnManager;
+    private bool isDestroyed = false;
+
+    void Start()
+    {
+        spawnManager = FindObjectOfType<SpawnManager>();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (isDestroyed) return;
+
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            balanceMechanic.AddWeight(weight, isRightSide);
+            DestroyEnemy();
+        }
+        else if (collision.gameObject.CompareTag("Ground"))
+        {
+            DestroyEnemy();
+        }
+    }
+
+    private void DestroyEnemy()
+    {
+        isDestroyed = true;
+        spawnManager.EnemyDestroyed(this);
+        Destroy(gameObject);
+    }
+}

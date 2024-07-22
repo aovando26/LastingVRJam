@@ -1,35 +1,97 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    public GameObject[] hurlingPrefabs;
-    private float startDelay = 2.0f;
-    private float spawnInterval = 1.5f;
-    public Transform[] spawnPoints;
-    public BalanceMechanic balanceMechanic;
+    public GameObject[] enemyPrefabs; // Array of enemy prefabs to spawn
+    public Transform[] spawnPoints; // Array of spawn points
 
-    private void Start()
+    // A reference to the WaveManager instance
+    private WaveManager waveManager;
+
+    // Responsible for spawning enemies
+    private Coroutine spawnCoroutine;
+
+    // List to keep track of currently active enemies
+    private List<GameObject> activeEnemies = new List<GameObject>();
+
+    void Start()
     {
-        if (spawnPoints.Length == 0)
+        waveManager = WaveManager.Instance;
+        if (waveManager == null)
         {
-            Debug.Log("No spawn points assigned");
+            Debug.LogError("WaveManager not found in the scene!");
+            return;
         }
-        InvokeRepeating("SpawningObjects", startDelay, spawnInterval);
+
+        // Subscribe to wave start and end events
+        waveManager.OnWaveStart += StartSpawning;
+        waveManager.OnWaveEnd += StopSpawning;
     }
 
-    private void SpawningObjects()
+    // Starts the coroutine to spawn enemies
+    void StartSpawning(int waveNumber)
     {
-        int indexCount = Random.Range(0, hurlingPrefabs.Length);
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+        }
+        spawnCoroutine = StartCoroutine(SpawnEnemies());
+    }
+
+    // Stops the coroutine that spawns enemies
+    void StopSpawning(int waveNumber)
+    {
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
+        }
+    }
+
+    // Coroutine that continuously spawns enemies based on the spawn interval defined by WaveManager
+    IEnumerator SpawnEnemies()
+    {
+        while (true)
+        {
+            if (waveManager.CanSpawnEnemy())
+            {
+                SpawnRandomEnemy();
+                yield return new WaitForSeconds(waveManager.GetCurrentSpawnInterval());
+            }
+            else
+            {
+                yield return null; // Wait for the next frame if we can't spawn
+            }
+        }
+    }
+
+    // Spawns a random enemy at a random spawn point
+    void SpawnRandomEnemy()
+    {
+        int indexCount = Random.Range(0, enemyPrefabs.Length);
         Transform sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
-        GameObject spawnedObject = Instantiate(hurlingPrefabs[indexCount], sp.position, sp.rotation);
+        GameObject newEnemy = Instantiate(enemyPrefabs[indexCount], sp.position, sp.rotation);
 
-        // adding script to instantiated object
-        FallingObject fallingObject = spawnedObject.AddComponent<FallingObject>();
+        // Add enemy to active list
+        activeEnemies.Add(newEnemy);
+    }
 
-        // method assigned and applied
-        fallingObject.balanceMechanic = balanceMechanic;
+    // Handles the destruction of an enemy
+    public void EnemyDestroyed(Enemy enemy)
+    {
+        activeEnemies.Remove(enemy.gameObject);
+        waveManager.EnemyKilled();
+    }
 
-        // falling direction
-        fallingObject.isRightSide = (sp.position.x > 0);
+    // Handles the event of the SpawnManager being destroyed
+    void OnDestroy()
+    {
+        if (waveManager != null)
+        {
+            waveManager.OnWaveStart -= StartSpawning;
+            waveManager.OnWaveEnd -= StopSpawning;
+        }
     }
 }
