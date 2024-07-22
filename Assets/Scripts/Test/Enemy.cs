@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    public BalanceMechanic balanceMechanic;
+    private BalanceMechanic balanceMechanic;
     public bool isRightSide;
     public float weight = 1f;
     private SpawnManager spawnManager;
@@ -11,6 +11,12 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         spawnManager = FindObjectOfType<SpawnManager>();
+        balanceMechanic = FindObjectOfType<BalanceMechanic>();
+
+        if (balanceMechanic == null)
+        {
+            Debug.LogError("BalanceMechanic component not found in the scene.");
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
