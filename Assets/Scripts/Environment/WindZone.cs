@@ -13,12 +13,14 @@ public class WindZone : MonoBehaviour
         windForce = initialWindForce;
 
         // subscribe to wave start events
+        // this class is notified each time a new wave starts
         WaveManager.Instance.OnWaveStart += OnWaveStart;
     }
 
     private void OnDestroy()
     {
         // unsubscribe from wave start events
+        // necessary to avoid potential issues, such as when an object is destroyed
         if (WaveManager.Instance != null)
         {
             WaveManager.Instance.OnWaveStart -= OnWaveStart;
